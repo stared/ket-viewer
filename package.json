@@ -10,12 +10,14 @@
   "dependencies": {
     "@types/d3-scale": "^2.1.1",
     "d3-scale": "^3.1.0",
+    "quantum-tensors": "stared/quantum-tensors#master",
     "register-service-worker": "^1.6.2",
     "vue": "^2.6.10",
     "vue-class-component": "^7.0.2",
     "vue-property-decorator": "^8.1.0"
   },
   "devDependencies": {
+    "@types/jest": "^24.0.19",
     "@vue/cli-plugin-eslint": "^3.12.0",
     "@vue/cli-plugin-pwa": "^3.12.0",
     "@vue/cli-plugin-typescript": "^3.12.0",
@@ -25,6 +27,7 @@
     "babel-eslint": "^10.0.1",
     "eslint": "^5.16.0",
     "eslint-plugin-vue": "^5.0.0",
+    "jest": "^24.9.0",
     "sass": "^1.19.0",
     "sass-loader": "^8.0.0",
     "typescript": "^3.4.3",

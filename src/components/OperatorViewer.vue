@@ -1,18 +1,37 @@
 <template>
   <svg class="operator-viewer" :width="width" :height="height">
-      <g>
-        <rect
-        v-for="(d, i) in matrixSparse"
-        :key="i"
-        class="tile"
-        :x="scale(d.i)"
-        :y="scale(d.j)"
-        :width="size"
-        :height="size"
-        :style="{fill: colorComplex(d.re, d.im)}"
-        @mouseover="tileMouseOver(d)"
-      />
-      </g>
+    <g class="labels-in" :transform="`translate(${1.5 * margin}, ${0.5 * margin})`">
+      <text
+        v-for="(label, i) in labelsIn"
+        :key="`label-in-${label}`"
+        class="label-in"
+        :x="scale(i)"
+        :y="0"
+      >⟨{{label}}|</text>
+    </g>
+    <g class="labels-out" :transform="`translate(${0.5 * margin}, ${1.5 * margin})`">
+      <text
+        v-for="(label, i) in labelsOut"
+        :key="`label-out-${label}`"
+        class="label-out"
+        :x="0"
+        :y="scale(i)"
+        dy="0.5em"
+      >|{{label}}⟩</text>
+    </g>
+    <g :transform="`translate(${margin}, ${margin})`">
+      <rect
+      v-for="(d, i) in matrixSparse"
+      :key="i"
+      class="tile"
+      :x="scale(d.i)"
+      :y="scale(d.j)"
+      :width="size"
+      :height="size"
+      :style="{fill: colorComplex(d.re, d.im)}"
+      @mouseover="tileMouseOver(d)"
+    />
+    </g>
   </svg>
 </template>
 
@@ -74,14 +93,28 @@ function hslToHex(h: number, s: number, l: number) {
 }
 
 
+const data = qt.sugarSolution().entries.map((entry) => {
+      console.log(entry.coordIn)
+      return {
+        i: 2 * entry.coordIn[0] + entry.coordIn[1],
+        j: 2 * entry.coordOut[0] + entry.coordOut[1],
+        re: entry.value.re,
+        im: entry.value.im,
+      }
+})
+
 @Component
 export default class OperatorViewer extends Vue {
   @Prop({default: () => 800}) private width!: number
   @Prop({default: () => 600}) private height!: number
-  @Prop({default: () => 75}) private size!: number
+  @Prop({default: () => 40}) private size!: number
+  @Prop({default: () => 40}) private margin!: number
   // @Prop() private height = 600  // generates error
 
-  matrixSparse = generateData(nForTest)
+  matrixSparse = data // generateData(nForTest)
+
+  labelsIn = ["⇢↔", "⇢↕", "⇡↔", "⇡↕", "⇠↔", "⇠↕", "⇣↔", "⇣↕"]
+  labelsOut = ["⇢↔", "⇢↕", "⇡↔", "⇡↕", "⇠↔", "⇠↕", "⇣↔", "⇣↕"]
 
   scale = scaleLinear()
     .domain([0, nForTest])
@@ -102,18 +135,10 @@ export default class OperatorViewer extends Vue {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
+.label-in, .label-out {
+  font-size: 14px;
+  text-align: center;
+  text-anchor: middle;
+  // font-family: "Roboto";
 }
 </style>
