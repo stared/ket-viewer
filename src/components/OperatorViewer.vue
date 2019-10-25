@@ -21,7 +21,7 @@
     </g>
     <g :transform="`translate(${margin}, ${margin})`">
       <rect
-      v-for="(d, i) in matrixSparse"
+      v-for="(d, i) in matrixElements"
       :key="i"
       class="tile"
       :x="scale(d.i)"
@@ -32,32 +32,21 @@
       @mouseover="tileMouseOver(d)"
     />
     </g>
+    <text
+      class="description"
+      :x="scale(4.5)"
+      :y="scale(10)"
+    >{{ description }}</text>
   </svg>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { scaleLinear } from 'd3-scale'
+// https://github.com/DefinitelyTyped/DefinitelyTyped/issues/23611
 import * as qt from 'quantum-tensors'
 
 const TAU = 2 * Math.PI
-
-function generateData(n: number) {
-  return (new Array(n * n))
-    .fill(undefined)
-    .map((x, i) => {
-      return {
-        i: i % n,
-        j: Math.floor(i / n),
-        re: 2 * Math.random() - 1,
-        im: 2 * Math.random() - 1,
-      }
-    })
-}
-
-const nForTest = 8
-
-
 
 /**
  * Stolen from https://stackoverflow.com/questions/36721830/convert-hsl-to-rgb-and-hex
@@ -93,16 +82,6 @@ function hslToHex(h: number, s: number, l: number) {
 }
 
 
-const data = qt.sugarSolution().entries.map((entry) => {
-      console.log(entry.coordIn)
-      return {
-        i: 2 * entry.coordIn[0] + entry.coordIn[1],
-        j: 2 * entry.coordOut[0] + entry.coordOut[1],
-        re: entry.value.re,
-        im: entry.value.im,
-      }
-})
-
 @Component
 export default class OperatorViewer extends Vue {
   @Prop({default: () => 800}) private width!: number
@@ -110,15 +89,15 @@ export default class OperatorViewer extends Vue {
   @Prop({default: () => 40}) private size!: number
   @Prop({default: () => 40}) private margin!: number
   // @Prop() private height = 600  // generates error
+  @Prop({default: () => []}) private matrixElements!: {i: number, j: number, re: number, im: number}[]
+  @Prop({default: () => []}) private labelsIn!: number[]
+  @Prop({default: () => []}) private labelsOut!: number[]
 
-  matrixSparse = data // generateData(nForTest)
-
-  labelsIn = ["⇢↔", "⇢↕", "⇡↔", "⇡↕", "⇠↔", "⇠↕", "⇣↔", "⇣↕"]
-  labelsOut = ["⇢↔", "⇢↕", "⇡↔", "⇡↕", "⇠↔", "⇠↕", "⇣↔", "⇣↕"]
+  description = ""
 
   scale = scaleLinear()
-    .domain([0, nForTest])
-    .range([0, this.size * nForTest])
+    .domain([0, 1])
+    .range([0, this.size])
 
   // https://github.com/stared/quantum-game/blob/master/js/transition_heatmap.js
   colorComplex = (re: number, im: number) => {
@@ -128,17 +107,22 @@ export default class OperatorViewer extends Vue {
 
   }
 
-  tileMouseOver = (d) => console.log(d)
+  tileMouseOver(d: {i: number, j: number, re: number, im: number}) {
+    this.description = `i: ${d.i}, j: ${d.j}   z = ${d.re.toFixed(2)} + ${d.im.toFixed(2)} i`
+  }
 
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-.label-in, .label-out {
-  font-size: 14px;
+.label-in, .label-out, .description {
+  font-size: 16px;
   text-align: center;
   text-anchor: middle;
-  // font-family: "Roboto";
+}
+
+.tile {
+  cursor: pointer;
 }
 </style>
