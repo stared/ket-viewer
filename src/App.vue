@@ -5,6 +5,10 @@
         {{ option.name }}
       </option>
     </select>
+    <select v-model="dimOrder">
+      <option value="dir pol">dir pol</option>
+      <option value="pol dir">pol dir</option>
+    </select>
     <OperatorViewer
       :labelsIn="basis"
       :labelsOut="basis"
@@ -36,20 +40,38 @@ export default class App extends Vue {
     {name: "polarizingBeamsplitter 135", operator: qt.polarizingBeamsplitter(135)},
   ]
   selected = {name: "sugarSolution", operator: qt.sugarSolution()}
+  dimOrder = "dir pol"
 
-  // 
+  // XXX: both below are quick and dirty, hardcoded or semi-hardcoded
   // TODO: make in quantum-tensors
-  get basis() { return ["⇢↔", "⇢↕", "⇡↔", "⇡↕", "⇠↔", "⇠↕", "⇣↔", "⇣↕"]}
+  get basis() { 
+    if (this.dimOrder === "dir pol") {
+      return ["⇢↔", "⇢↕", "⇡↔", "⇡↕", "⇠↔", "⇠↕", "⇣↔", "⇣↕"]
+    } else {
+      return ["↔⇢", "↔⇡", "↔⇠", "↔⇣", "↕⇢", "↕⇡", "↕⇠", "↕⇣"]
+    }
+  }
 
   get matrixElements() {
-    return this.selected.operator.entries.map((entry) => {
-      return {
-        i: 2 * entry.coordIn[0] + entry.coordIn[1],
-        j: 2 * entry.coordOut[0] + entry.coordOut[1],
-        re: entry.value.re,
-        im: entry.value.im,
-      }
-    })
+    if (this.dimOrder === "dir pol") {
+      return this.selected.operator.entries.map((entry) => {
+        return {
+          i: 2 * entry.coordIn[0] + entry.coordIn[1],
+          j: 2 * entry.coordOut[0] + entry.coordOut[1],
+          re: entry.value.re,
+          im: entry.value.im,
+        }
+      })
+    } else {
+      return this.selected.operator.entries.map((entry) => {
+        return {
+          i: entry.coordIn[0] + 4 * entry.coordIn[1],
+          j: entry.coordOut[0] + 4 * entry.coordOut[1],
+          re: entry.value.re,
+          im: entry.value.im,
+        }
+      })
+    }
   }
 }
 </script>

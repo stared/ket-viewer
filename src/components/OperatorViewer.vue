@@ -108,7 +108,7 @@ export default class OperatorViewer extends Vue {
   }
 
   tileMouseOver(d: {i: number, j: number, re: number, im: number}) {
-    this.description = `i: ${d.i}, j: ${d.j}   z = ${d.re.toFixed(2)} + ${d.im.toFixed(2)} i`
+    this.description = `i: ${d.i}, j: ${d.j}:   (${d.re.toFixed(2)} + ${d.im.toFixed(2)} i)|${this.labelsOut[d.i]}⟩⟨${this.labelsIn[d.j]}|`
   }
 
 }
